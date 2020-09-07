@@ -630,6 +630,8 @@ module GFS_typedefs
     integer              :: imp_physics_zhao_carr_pdf = 98 !< choice of Zhao-Carr microphysics scheme with PDF clouds
     integer              :: imp_physics_mg = 10            !< choice of Morrison-Gettelman microphysics scheme
     integer              :: imp_physics_fer_hires = 15     !< choice of Ferrier-Aligo microphysics scheme
+    integer              :: imp_physics_nssl2m    = 17       !< choice of NSSL microphysics scheme with background CCN
+    integer              :: imp_physics_nssl2mccn = 18       !< choice of NSSL microphysics scheme with predicted CCN
     !--- Z-C microphysical parameters
     real(kind=kind_phys) :: psautco(2)         !< [in] auto conversion coeff from ice to snow
     real(kind=kind_phys) :: prautco(2)         !< [in] auto conversion coeff from cloud to rain
@@ -674,6 +676,11 @@ module GFS_typedefs
 
     real(kind=kind_phys) :: shoc_parm(5)    !< critical pressure in Pa for tke dissipation in shoc
     integer              :: ncnd            !< number of cloud condensate types
+
+    !--- NSSL microphysics params
+    real(kind=kind_phys) :: nssl_cccn = 0.6e9    !<  CCN concentration (m-3)
+    real(kind=kind_phys) :: nssl_alphah = 0.0    !<  graupel shape parameter
+    real(kind=kind_phys) :: nssl_alphahl= 1.0    !<  hail shape parameter
 
     !--- Thompson's microphysical parameters
     logical              :: ltaerosol       !< flag for aerosol version
@@ -936,17 +943,22 @@ module GFS_typedefs
     integer              :: ntrw            !< tracer index for rain water
     integer              :: ntsw            !< tracer index for snow water
     integer              :: ntgl            !< tracer index for graupel
+    integer              :: nthl            !< tracer index for hail
     integer              :: ntclamt         !< tracer index for cloud amount
     integer              :: ntlnc           !< tracer index for liquid number concentration
     integer              :: ntinc           !< tracer index for ice    number concentration
     integer              :: ntrnc           !< tracer index for rain   number concentration
     integer              :: ntsnc           !< tracer index for snow   number concentration
     integer              :: ntgnc           !< tracer index for graupel number concentration
+    integer              :: nthnc           !< tracer index for hail number concentration
+    integer              :: ntgv            !< tracer index for graupel volume
+    integer              :: nthv            !< tracer index for hail volume
     integer              :: ntke            !< tracer index for kinetic energy
     integer              :: nto             !< tracer index for oxygen ion
     integer              :: nto2            !< tracer index for oxygen
     integer              :: ntwa            !< tracer index for water friendly aerosol 
     integer              :: ntia            !< tracer index for ice friendly aerosol
+    integer              :: ntccn           !< tracer index for number concentration of cccn
     integer              :: ntchm           !< number of chemical tracers
     integer              :: ntchs           !< tracer index for first chemical tracer
     logical, pointer     :: ntdiag(:) => null() !< array to control diagnostics for chemical tracers
@@ -1630,6 +1642,7 @@ module GFS_typedefs
     real (kind=kind_phys), pointer      :: gflx_land(:)       => null()  !<
     real (kind=kind_phys), pointer      :: gflx_ocean(:)      => null()  !<
     real (kind=kind_phys), pointer      :: graupelmp(:)       => null()  !<
+    real (kind=kind_phys), pointer      :: hailmp(:)          => null()  !<
     real (kind=kind_phys), pointer      :: gwdcu(:,:)         => null()  !<
     real (kind=kind_phys), pointer      :: gwdcv(:,:)         => null()  !<
     integer                             :: h2o_coeff                     !<
@@ -2686,6 +2699,10 @@ module GFS_typedefs
     logical              :: mg_do_ice_gmao  = .false.           !< set .true. to turn on gmao ice formulation
     logical              :: mg_do_liq_liu   = .true.            !< set .true. to turn on liu liquid treatment
 
+    !--- NSSL microphysics params
+    real(kind=kind_phys) :: nssl_cccn = 0.6e9      !<  CCN concentration (m-3)
+    real(kind=kind_phys) :: nssl_alphah = 0.0      !<  graupel shape parameter
+    real(kind=kind_phys) :: nssl_alphahl= 1.0      !<  hail shape parameter
 
     !--- Thompson microphysical parameters
     logical              :: ltaerosol      = .false.            !< flag for aerosol version
@@ -2970,6 +2987,7 @@ module GFS_typedefs
                                mg_ncnst, mg_ninst, mg_ngnst, sed_supersat, do_sb_physics,   &
                                mg_alf,   mg_qcmin, mg_do_ice_gmao, mg_do_liq_liu,           &
                                ltaerosol, lradar, ttendlim, lgfdlmprad,                     &
+                               nssl_cccn, nssl_alphah, nssl_alphahl,                        &
                           !--- max hourly
                                avg_max_length,                                              &
                           !--- land/surface model control
@@ -3224,6 +3242,11 @@ module GFS_typedefs
     Model%tf               = tf
     Model%tcr              = tcr
     Model%tcrf             = 1.0/(tcr-tf)
+
+!-- NSSL microphysics params
+    Model%nssl_cccn        = nssl_cccn
+    Model%nssl_alphah      = nssl_alphah
+    Model%nssl_alphahl     = nssl_alphahl
 
 !--- Thompson MP parameters
     Model%ltaerosol        = ltaerosol
@@ -3490,6 +3513,10 @@ module GFS_typedefs
     Model%ntrnc            = get_tracer_index(Model%tracer_names, 'rain_nc',    Model%me, Model%master, Model%debug)
     Model%ntsnc            = get_tracer_index(Model%tracer_names, 'snow_nc',    Model%me, Model%master, Model%debug)
     Model%ntgnc            = get_tracer_index(Model%tracer_names, 'graupel_nc', Model%me, Model%master, Model%debug)
+    Model%nthnc            = get_tracer_index(Model%tracer_names, 'hail_nc',    Model%me, Model%master, Model%debug)
+    Model%ntgv             = get_tracer_index(Model%tracer_names, 'graupel_vol', Model%me, Model%master, Model%debug)
+    Model%nthv             = get_tracer_index(Model%tracer_names, 'hail_vol',   Model%me, Model%master, Model%debug)
+    Model%ntccn            = get_tracer_index(Model%tracer_names, 'cccn',       Model%me, Model%master, Model%debug)
     Model%ntke             = get_tracer_index(Model%tracer_names, 'sgs_tke',    Model%me, Model%master, Model%debug)
     Model%nqrimef          = get_tracer_index(Model%tracer_names, 'q_rimef',    Model%me, Model%master, Model%debug)
     Model%ntwa             = get_tracer_index(Model%tracer_names, 'liq_aero',   Model%me, Model%master, Model%debug)
@@ -3890,6 +3917,37 @@ module GFS_typedefs
       Model%nseffr  = 3
       if (Model%me == Model%master) print *,' Using wsm6 microphysics'
 
+
+    elseif (Model%imp_physics == Model%imp_physics_nssl2m) then !NSSL microphysics
+      Model%npdf3d  = 0
+      Model%num_p3d = 3
+      Model%num_p2d = 1
+      Model%pdfcld  = .false.
+      Model%shcnvcw = .false.
+      Model%ncnd    = 6
+      Model%nleffr = 1
+      Model%nieffr = 2
+      Model%nseffr = 3
+      if (Model%me == Model%master) print *,' Using NSSL double moment', &
+                                          ' microphysics', &
+                                          ' lradar =',Model%lradar,' ttendlim =',Model%ttendlim, &
+                                          Model%num_p3d,Model%num_p2d
+
+    elseif (Model%imp_physics == Model%imp_physics_nssl2mccn) then !NSSL microphysics
+      Model%npdf3d  = 0
+      Model%num_p3d = 3
+      Model%num_p2d = 1
+      Model%pdfcld  = .false.
+      Model%shcnvcw = .false.
+      Model%ncnd    = 6
+      Model%nleffr = 1
+      Model%nieffr = 2
+      Model%nseffr = 3
+      if (Model%me == Model%master) print *,' Using NSSL double moment', &
+                                          ' microphysics with CCN', &
+                                          ' lradar =',Model%lradar,' ttendlim =',Model%ttendlim, &
+                                          Model%num_p3d,Model%num_p2d
+
     elseif (Model%imp_physics == Model%imp_physics_thompson) then !Thompson microphysics
       Model%npdf3d  = 0
       Model%num_p3d = 3
@@ -4161,6 +4219,13 @@ module GFS_typedefs
         print *, ' ttendlim          : ', Model%ttendlim
         print *, ' '
       endif
+      if (Model%imp_physics == Model%imp_physics_nssl2m .or. Model%imp_physics == Model%imp_physics_nssl2mccn) then
+        print *, 'NSSL microphysical parameters'
+        print *, ' CCCN              : ', Model%nssl_cccn
+        print *, ' graupel shape     : ', Model%nssl_alphah
+        print *, ' hail shape        : ', Model%nssl_alphahl
+      endif
+
       if (Model%imp_physics == Model%imp_physics_mg) then
         print *, ' M-G microphysical parameters'
         print *, ' fprcp             : ', Model%fprcp
@@ -4917,7 +4982,7 @@ module GFS_typedefs
 
     endif
 
-    !--- 3D diagnostics for Thompson MP / GFDL MP
+    !--- 3D diagnostics for Thompson MP / GFDL MP / NSSL
     allocate (Diag%refl_10cm(IM,Model%levs))
 
     !--  New max hourly diag.
@@ -5585,7 +5650,8 @@ module GFS_typedefs
     allocate (Interstitial%dudt_tms        (IM,Model%levs))
 !
     ! Allocate arrays that are conditional on physics choices
-    if (Model%imp_physics == Model%imp_physics_gfdl .or. Model%imp_physics == Model%imp_physics_thompson) then
+    if (Model%imp_physics == Model%imp_physics_gfdl .or. Model%imp_physics == Model%imp_physics_thompson .or. &
+         Model%imp_physics == Model%imp_physics_nssl2m .or. Model%imp_physics == Model%imp_physics_nssl2mccn) then
        allocate (Interstitial%graupelmp  (IM))
        allocate (Interstitial%icemp      (IM))
        allocate (Interstitial%rainmp     (IM))
@@ -6429,7 +6495,8 @@ module GFS_typedefs
     write (0,*) 'sum(Interstitial%dudt_tms        ) = ', sum(Interstitial%dudt_tms        )
 !
     ! Print arrays that are conditional on physics choices
-    if (Model%imp_physics == Model%imp_physics_gfdl .or. Model%imp_physics == Model%imp_physics_thompson) then
+    if (Model%imp_physics == Model%imp_physics_gfdl .or. Model%imp_physics == Model%imp_physics_thompson .or. &
+        Model%imp_physics == Model%imp_physics_nssl2m .or. Model%imp_physics == Model%imp_physics_nssl2mccn) then
        write (0,*) 'Interstitial_print: values specific to GFDL/Thompson microphysics'
        write (0,*) 'sum(Interstitial%graupelmp    ) = ', sum(Interstitial%graupelmp       )
        write (0,*) 'sum(Interstitial%icemp        ) = ', sum(Interstitial%icemp           )

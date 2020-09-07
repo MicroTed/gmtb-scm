@@ -188,6 +188,13 @@
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
   kind = kind_phys
+[qgrs(:,:,index_for_hail)]
+  standard_name = hail_mixing_ratio
+  long_name = moist (dry+vapor, no condensates) mixing ratio of hail
+  units = kg kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
 [qgrs(:,:,index_for_ozone)]
   standard_name = ozone_mixing_ratio
   long_name = ozone mixing ratio
@@ -205,6 +212,13 @@
 [qgrs(:,:,index_for_ice_friendly_aerosols)]
   standard_name = ice_friendly_aerosol_number_concentration
   long_name = number concentration of ice-friendly aerosols
+  units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[qgrs(:,:,index_for_cccn)]
+  standard_name = cccn_number_concentration
+  long_name = number concentration of ccn
   units = kg-1
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
@@ -241,6 +255,27 @@
   standard_name = graupel_number_concentration
   long_name = number concentration of graupel
   units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[qgrs(:,:,index_for_hail_number_concentration)]
+  standard_name = hail_number_concentration
+  long_name = number concentration of hail
+  units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[qgrs(:,:,index_for_graupel_volume)]
+  standard_name = graupel_volume
+  long_name = graupel particle volume
+  units = m3 kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[qgrs(:,:,index_for_hail_volume)]
+  standard_name = hail_volume
+  long_name = hail particle volume
+  units = m3 kg-1
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
   kind = kind_phys
@@ -368,6 +403,13 @@
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
   kind = kind_phys
+[gq0(:,:,index_for_hail)]
+  standard_name = hail_mixing_ratio_updated_by_physics
+  long_name = moist (dry+vapor, no condensates) mixing ratio of hail updated by physics
+  units = kg kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
 [gq0(:,:,index_for_mass_weighted_rime_factor)]
   standard_name = mass_weighted_rime_factor_updated_by_physics
   long_name = mass weighted rime factor updated by physics
@@ -385,6 +427,13 @@
 [gq0(:,:,index_for_ice_friendly_aerosols)]
   standard_name = ice_friendly_aerosol_number_concentration_updated_by_physics
   long_name = number concentration of ice-friendly aerosols updated by physics
+  units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[gq0(:,:,index_for_cccn)]
+  standard_name = cccn_number_concentration_updated_by_physics
+  long_name = number concentration of ccn updated by physics
   units = kg-1
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
@@ -421,6 +470,27 @@
   standard_name = graupel_number_concentration_updated_by_physics
   long_name = number concentration of graupel updated by physics
   units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[gq0(:,:,index_for_hail_number_concentration)]
+  standard_name = hail_number_concentration_updated_by_physics
+  long_name = number concentration of hail updated by physics
+  units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[gq0(:,:,index_for_graupel_volume)]
+  standard_name = graupel_volume_updated_by_physics
+  long_name = graupel particle volume
+  units = m3 kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[gq0(:,:,index_for_hail_volume)]
+  standard_name = hail_volume_updated_by_physics
+  long_name = hail particle volume
+  units = m3 kg-1
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
   kind = kind_phys
@@ -2295,6 +2365,18 @@
   units = flag
   dimensions = ()
   type = integer
+[imp_physics_nssl2m]
+  standard_name = flag_for_nssl2m_microphysics_scheme
+  long_name = choice of NSSL 2-moment microphysics scheme
+  units = flag
+  dimensions = ()
+  type = integer
+[imp_physics_nssl2mccn]
+  standard_name = flag_for_nssl2mccn_microphysics_scheme
+  long_name = choice of NSSL 2-moment microphysics scheme with CCN
+  units = flag
+  dimensions = ()
+  type = integer
 [psautco]
   standard_name = coefficient_from_cloud_ice_to_snow
   long_name = auto conversion coeff from ice to snow
@@ -2433,6 +2515,27 @@
   dimensions = ()
   type = character
   kind = len=16
+[nssl_cccn]
+  standard_name = nssl_ccn_concentration
+  long_name = CCN concentration
+  units = m-3
+  dimensions = ()
+  type = real
+  kind = kind_phys
+[nssl_alphah]
+  standard_name = nssl_alpha_graupel
+  long_name = graupel PSD shape parameter in NSSL micro
+  units = none
+  dimensions = ()
+  type = real
+  kind = kind_phys
+[nssl_alphahl]
+  standard_name = nssl_alpha_hail
+  long_name = hail PSD shape parameter in NSSL micro
+  units = none
+  dimensions = ()
+  type = real
+  kind = kind_phys
 [tf]
   standard_name = frozen_cloud_threshold_temperature
   long_name = threshold temperature below which all cloud is ice
@@ -3499,6 +3602,12 @@
   units = index
   dimensions = ()
   type = integer
+[nthl]
+  standard_name = index_for_hail
+  long_name = tracer index for hail
+  units = index
+  dimensions = ()
+  type = integer
 [ntclamt]
   standard_name = index_for_cloud_amount
   long_name = tracer index for cloud amount integer
@@ -3517,6 +3626,12 @@
   units = index
   dimensions = ()
   type = integer
+[ntccn]
+  standard_name = index_for_cccn
+  long_name = tracer index for ccn number concentration
+  units = index
+  dimensions = ()
+  type = integer
 [ntrnc]
   standard_name = index_for_rain_number_concentration
   long_name = tracer index for rain   number concentration
@@ -3532,6 +3647,24 @@
 [ntgnc]
   standard_name = index_for_graupel_number_concentration
   long_name = tracer index for graupel number concentration
+  units = index
+  dimensions = ()
+  type = integer
+[nthnc]
+  standard_name = index_for_hail_number_concentration
+  long_name = tracer index for hail number concentration
+  units = index
+  dimensions = ()
+  type = integer
+[ntgv]
+  standard_name = index_for_graupel_volume
+  long_name = tracer index for graupel particle volume
+  units = index
+  dimensions = ()
+  type = integer
+[nthv]
+  standard_name = index_for_hail_volume
+  long_name = tracer index for hail particle volume
   units = index
   dimensions = ()
   type = integer
@@ -6418,6 +6551,13 @@
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
   kind = kind_phys
+[dqdt(:,:,index_for_cccn)]
+  standard_name = tendency_of_cccn_number_concentration_due_to_model_physics
+  long_name = number concentration of ccn tendency due to model physics
+  units = kg-1 s-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
 [dqdt(:,:,index_for_rain_water)]
   standard_name = tendency_of_rain_water_mixing_ratio_due_to_model_physics
   long_name = moist (dry+vapor, no condensates) mixing ratio of rain water tendency due to model physics
@@ -6435,6 +6575,13 @@
 [dqdt(:,:,index_for_graupel)]
   standard_name = tendency_of_graupel_mixing_ratio_due_to_model_physics
   long_name = moist (dry+vapor, no condensates) mixing ratio of graupel tendency due to model physics
+  units = kg kg-1 s-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[dqdt(:,:,index_for_hail)]
+  standard_name = tendency_of_hail_mixing_ratio_due_to_model_physics
+  long_name = moist (dry+vapor, no condensates) mixing ratio of hail tendency due to model physics
   units = kg kg-1 s-1
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
@@ -7274,6 +7421,27 @@
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
   kind = kind_phys
+[nchl]
+  standard_name = local_hail_number_concentration
+  long_name = particle volume of hail local to physics
+  units = kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[volgl]
+  standard_name = local_graupel_volume
+  long_name = number concentration of graupel local to physics
+  units = m3 kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[volhl]
+  standard_name = local_hail_volume
+  long_name = number concentration of hail local to physics
+  units = m3 kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
 [ncpi]
   standard_name = local_ice_number_concentration
   long_name = number concentration of ice local to physics
@@ -7463,6 +7631,13 @@
 [qgl]
   standard_name = local_graupel_mixing_ratio
   long_name = moist (dry+vapor, no condensates) mixing ratio of graupel local to physics
+  units = kg kg-1
+  dimensions = (horizontal_dimension,vertical_dimension)
+  type = real
+  kind = kind_phys
+[qhl]
+  standard_name = local_hail_mixing_ratio
+  long_name = moist (dry+vapor, no condensates) mixing ratio of hail local to physics
   units = kg kg-1
   dimensions = (horizontal_dimension,vertical_dimension)
   type = real
