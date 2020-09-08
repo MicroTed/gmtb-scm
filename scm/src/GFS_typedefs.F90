@@ -3924,7 +3924,7 @@ module GFS_typedefs
       Model%num_p2d = 1
       Model%pdfcld  = .false.
       Model%shcnvcw = .false.
-      Model%ncnd    = 6
+      Model%ncnd    = 5 ! 6
       Model%nleffr = 1
       Model%nieffr = 2
       Model%nseffr = 3
@@ -3939,7 +3939,7 @@ module GFS_typedefs
       Model%num_p2d = 1
       Model%pdfcld  = .false.
       Model%shcnvcw = .false.
-      Model%ncnd    = 6
+      Model%ncnd    = 5 ! 6
       Model%nleffr = 1
       Model%nieffr = 2
       Model%nseffr = 3
